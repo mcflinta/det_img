@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OpenWhisk Image Display</title>
+    <img id="displayedImage" src="" alt="Mô tả hình ảnh">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f0f0f0;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        #result {
+            margin-top: 20px;
+            font-size: 18px;
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+    <form id="urlForm">
+        <input type="text" id="imageUrl" placeholder="Enter image URL" />
+        <button type="submit" onclick="displayImage()">Send and Process Image</button>
+    </form>
+    <div id="result"></div>
+
+    <script>
+	function displayImage() {
+            var imageUrl = document.getElementById("imageUrl").value;
+            document.getElementById("displayedImage").src = imageUrl;
+        }
+        document.getElementById('urlForm').addEventListener('submit', async function(event) {
+            event.preventDefault();
+            
+            const resultDiv = document.getElementById('result');
+            const imageUrl = document.getElementById('imageUrl').value.trim();
+            
+            if (!imageUrl) {
+                resultDiv.textContent = 'Please enter a valid image URL.';
+                return;
+            }
+            
+            resultDiv.textContent = 'Sending and processing...';
+
+            try {
+                const response = await fetch(`http://172.17.0.1:3233/api/v1/web/guest/demo/hello.http?link_image=${imageUrl}`);
+
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+
+                const base64Image = await response.text();
+
+                // Tạo thẻ img và gán src với chuỗi base64
+                const img = document.createElement('img');
+                img.src = 'data:image/jpeg;base64,' + base64Image;
+                img.alt = 'Processed Image';
+                
+                // Xóa nội dung cũ và thêm ảnh mới vào resultDiv
+                resultDiv.innerHTML = '';
+                resultDiv.appendChild(img);
+            } catch (error) {
+                resultDiv.textContent = 'Error: ' + error.message;
+            }
+        });
+    </script>
+</body>
+</html>
