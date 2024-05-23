@@ -20,7 +20,7 @@ import base64
 def main(args):
     model = YOLO('yolov8n.pt')  # load an official model
     # Predict with the model and save the results
-    results = model(args['link_image'], save=True)
+    results = model('https://ultralytics.com/images/bus.jpg', save=True)
     
     # Get the directory where the results are saved
     for result in results:
